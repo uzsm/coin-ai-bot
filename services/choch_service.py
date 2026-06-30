@@ -5,6 +5,8 @@ def detect_choch(structure):
     if len(structure) < 4:
         return choch
 
+    current_trend = None
+
     for i in range(3, len(structure)):
 
         s1 = structure[i - 3]
@@ -12,32 +14,55 @@ def detect_choch(structure):
         s3 = structure[i - 1]
         s4 = structure[i]
 
-        # Bullish -> Bearish
-        if (
-            s1["label"] == "HH"
-            and s2["label"] == "HL"
-            and s3["label"] == "LH"
-            and s4["label"] == "LL"
-        ):
+        # Trendni aniqlash
+        if s1["label"] == "HH" and s2["label"] == "HL":
+            current_trend = "BULLISH"
 
-            choch.append({
-                "type": "BEARISH_CHOCH",
-                "index": s4["index"],
-                "price": s4["price"]
-            })
+        elif s1["label"] == "LL" and s2["label"] == "LH":
+            current_trend = "BEARISH"
 
-        # Bearish -> Bullish
-        if (
-            s1["label"] == "LL"
-            and s2["label"] == "LH"
-            and s3["label"] == "HL"
-            and s4["label"] == "HH"
-        ):
+        # Bullish -> Bearish ChoCH
+        if current_trend == "BULLISH":
 
-            choch.append({
-                "type": "BULLISH_CHOCH",
-                "index": s4["index"],
-                "price": s4["price"]
-            })
+            if (
+                s3["label"] == "LH"
+                and s4["label"] == "LL"
+            ):
+
+                choch.append({
+
+                    "type": "BEARISH_CHOCH",
+
+                    "index": s4["index"],
+
+                    "price": s4["price"],
+
+                    "broken_level": s2["price"]
+
+                })
+
+                current_trend = "BEARISH"
+
+        # Bearish -> Bullish ChoCH
+        elif current_trend == "BEARISH":
+
+            if (
+                s3["label"] == "HL"
+                and s4["label"] == "HH"
+            ):
+
+                choch.append({
+
+                    "type": "BULLISH_CHOCH",
+
+                    "index": s4["index"],
+
+                    "price": s4["price"],
+
+                    "broken_level": s2["price"]
+
+                })
+
+                current_trend = "BULLISH"
 
     return choch

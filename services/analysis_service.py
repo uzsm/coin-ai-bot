@@ -1,8 +1,10 @@
 from services.binance_service import get_candles
 from services.pivot_service import detect_pivots
 from services.swing_service import build_swings
-from services.structure_service import build_structure
-from services.trend_service import detect_trend
+from services.structure_service import (
+    build_structure,
+    analyze_structure
+)
 from services.bos_service import detect_bos
 
 
@@ -16,20 +18,40 @@ def analyze(symbol, timeframe):
 
     structure = build_structure(swings)
 
-    trend = detect_trend(structure)
+    structure_info = analyze_structure(structure)
 
     bos = detect_bos(structure, candles)
 
     return {
 
-        "trend": trend,
+        "symbol": symbol,
 
-        "pivot_count": len(pivots),
+        "timeframe": timeframe,
 
-        "swing_count": len(swings),
+        "trend": structure_info["trend"],
 
-        "structure_count": len(structure),
+        "analysis": structure_info,
 
-        "bos_count": len(bos)
+        "candles": candles,
+
+        "pivots": pivots,
+
+        "swings": swings,
+
+        "structure": structure,
+
+        "bos": bos,
+
+        "stats": {
+
+            "pivot_count": len(pivots),
+
+            "swing_count": len(swings),
+
+            "structure_count": len(structure),
+
+            "bos_count": len(bos)
+
+        }
 
     }

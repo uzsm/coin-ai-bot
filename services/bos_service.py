@@ -1,37 +1,57 @@
 def detect_bos(structure, candles):
 
-    bos_list = []
+    bos = []
+
+    if len(structure) < 2:
+        return bos
 
     for point in structure:
 
-        if point["type"] == "HIGH":
+        label = point["label"]
 
-            level = point["price"]
+        # Faqat HH yoki LL
+        if label not in ("HH", "LL"):
+            continue
 
-            for candle in candles[point["index"] + 1:]:
+        level = point["price"]
+
+        for candle in candles[point["index"] + 1:]:
+
+            # Bullish BOS
+            if label == "HH":
 
                 if candle["close"] > level:
 
-                    bos_list.append({
+                    bos.append({
+
                         "type": "BULLISH",
-                        "level": level
+
+                        "index": point["index"],
+
+                        "price": level,
+
+                        
                     })
 
                     break
 
-        else:
-
-            level = point["price"]
-
-            for candle in candles[point["index"] + 1:]:
+            # Bearish BOS
+            else:
 
                 if candle["close"] < level:
 
-                    bos_list.append({
+                    bos.append({
+
                         "type": "BEARISH",
-                        "level": level
+
+                        "index": point["index"],
+
+                        "price": level,
+
+                       
+
                     })
 
                     break
 
-    return bos_list
+    return bos
