@@ -54,11 +54,19 @@ async def timeframe_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     timeframe = TIMEFRAME_MAP[data]
-    result = analyze(user["selected_coin"], timeframe)
-
+    print("=" * 40)
+    print("USER =", dict(user))
+    print("SELECTED COIN =", user["selected_coin"])
+    print("=" * 40)
     set_timeframe(query.from_user.id, timeframe)
 
+    result = analyze(user["selected_coin"], timeframe)
+
+ 
+
     set_state(query.from_user.id, STATE_MAIN_MENU)
+    
+    price = f'{result["last_price"]:,.2f}'
 
     await query.edit_message_text(
     f"""
@@ -66,6 +74,7 @@ async def timeframe_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 🪙 Coin: {user["selected_coin"]}
 ⏰ Timeframe: {timeframe}
+💰 Price: {price} USDT
 
 ━━━━━━━━━━━━━━
 
@@ -73,16 +82,16 @@ async def timeframe_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 {result["trend"]}
 
 📍 Pivotlar:
-{result["pivot_count"]}
+{result["stats"]["pivot_count"]}
 
 🌊 Swinglar:
-{result["swing_count"]}
+{result["stats"]["swing_count"]}
 
 🏗 Structure:
-{result["structure_count"]}
+{result["stats"]["structure_count"]}
 
 💥 BOS:
-{result["bos_count"]}
+{result["stats"]["bos_count"]}
 
 ━━━━━━━━━━━━━━
 

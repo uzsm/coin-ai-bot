@@ -26,10 +26,14 @@ async def coin_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         print("❌ State WAIT_COIN emas.")
         return
 
-    coin = update.message.text.upper()
+    coin = update.message.text.upper().strip()
+
+# Agar foydalanuvchi USDT yozmasa, avtomatik qo'shamiz
+    if not coin.endswith("USDT"):
+     coin += "USDT"
 
     print("COIN =", coin)
-
+    
     if len(coin) > 10:
         print("❌ Coin uzunligi noto'g'ri.")
         await update.message.reply_text("❌ Coin nomi noto'g'ri.")

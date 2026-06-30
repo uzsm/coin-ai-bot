@@ -16,7 +16,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "👋 Coin AI Bot ga xush kelibsiz!\n\n"
         "🪙 Coin nomini kiriting.\n\n"
         "Masalan:\n"
-        "BTC\n"
-        "ETH\n"
-        "SOL"
+        "BTCUSDT\n"
+        "ETHUSDT\n"
+        "SOLUSDT"
     )

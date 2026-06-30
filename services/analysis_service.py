@@ -21,8 +21,11 @@ def analyze(symbol, timeframe):
     structure_info = analyze_structure(structure)
 
     bos = detect_bos(structure, candles)
+    
+    last_price = candles[-1]["close"]
 
     return {
+       
 
         "symbol": symbol,
 
@@ -41,6 +44,8 @@ def analyze(symbol, timeframe):
         "structure": structure,
 
         "bos": bos,
+        
+        "last_price": last_price,
 
         "stats": {
 
