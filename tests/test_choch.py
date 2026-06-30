@@ -7,10 +7,10 @@ from services.binance_service import get_candles
 from services.pivot_service import detect_pivots
 from services.swing_service import build_swings
 from services.structure_service import build_structure
-from services.chart_service import draw_chart
+from services.choch_service import detect_choch
 
 
-candles = get_candles("BTCUSDT", "15m", 200)
+candles = get_candles("BTCUSDT", "15m", 100)
 
 pivots = detect_pivots(candles)
 
@@ -18,18 +18,9 @@ swings = build_swings(pivots)
 
 structure = build_structure(swings)
 
-draw_chart(
+choch = detect_choch(structure)
 
-    candles,
+print(f"ChoCH soni: {len(choch)}")
 
-    pivots=pivots,
-
-    swings=swings,
-
-    structure=structure,
-
-    filename="chart.png"
-
-)
-
-print("Chart tayyor.")
+for item in choch:
+    print(item)

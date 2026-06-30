@@ -6,11 +6,12 @@ sys.path.append(str(Path(__file__).resolve().parent.parent))
 from services.binance_service import get_candles
 from services.pivot_service import detect_pivots
 from services.swing_service import build_swings
-from services.structure_service import build_structure
-from services.chart_service import draw_chart
+from services.structure_service import (
+    build_structure,
+    analyze_structure
+)
 
-
-candles = get_candles("BTCUSDT", "15m", 200)
+candles = get_candles("BTCUSDT", "15m", 100)
 
 pivots = detect_pivots(candles)
 
@@ -18,18 +19,6 @@ swings = build_swings(pivots)
 
 structure = build_structure(swings)
 
-draw_chart(
+result = analyze_structure(structure)
 
-    candles,
-
-    pivots=pivots,
-
-    swings=swings,
-
-    structure=structure,
-
-    filename="chart.png"
-
-)
-
-print("Chart tayyor.")
+print(result)

@@ -55,3 +55,64 @@ def detect_pivots(candles, left=2, right=2):
             })
 
     return pivots
+
+def score_pivots(candles, pivots):
+
+    scored = []
+
+    for pivot in pivots:
+
+        strength = 0
+
+        idx = pivot["index"]
+
+        if pivot["type"] == "HIGH":
+
+            future = candles[idx + 1: idx + 6]
+
+            if future:
+
+                lowest = min(c["low"] for c in future)
+
+                impulse = pivot["price"] - lowest
+
+                if impulse > 600:
+                    strength = 4
+
+                elif impulse > 300:
+                    strength = 3
+
+                elif impulse > 100:
+                    strength = 2
+
+                else:
+                    strength = 1
+
+        else:
+
+            future = candles[idx + 1: idx + 6]
+
+            if future:
+
+                highest = max(c["high"] for c in future)
+
+                impulse = highest - pivot["price"]
+
+                if impulse > 600:
+                    strength = 4
+
+                elif impulse > 300:
+                    strength = 3
+
+                elif impulse > 100:
+                    strength = 2
+
+                else:
+                    strength = 1
+
+        pivot["strength"] = strength
+        pivot["confirmed"] = strength >= 3
+
+        scored.append(pivot)
+
+    return scored
