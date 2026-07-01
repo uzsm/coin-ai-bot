@@ -7,6 +7,9 @@ from services.structure_service import (
 )
 from services.bos_service import detect_bos
 from services.order_block_service import detect_order_blocks
+from services.indicator_service import calculate_indicators
+from services.confidence_service import calculate_confidence
+ 
 
 
 def analyze(symbol, timeframe):
@@ -25,7 +28,23 @@ def analyze(symbol, timeframe):
     
     order_blocks = detect_order_blocks(candles, bos)
     
+    indicators = calculate_indicators(candles)
+    
     last_price = candles[-1]["close"]
+    
+    confidence = calculate_confidence(
+
+    structure_info["trend"],
+
+    indicators,
+
+    bos,
+
+    [],      # hozircha choch
+
+    order_blocks
+
+)
 
     return {
        
@@ -47,10 +66,14 @@ def analyze(symbol, timeframe):
         "structure": structure,
 
         "bos": bos,
-        
+
+        "order_blocks": order_blocks,
+
+        "indicators": indicators,
+
         "last_price": last_price,
         
-        "order_blocks": order_blocks,
+        "confidence": confidence,
 
         "stats": {
 

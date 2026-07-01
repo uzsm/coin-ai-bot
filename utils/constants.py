@@ -16,9 +16,9 @@ PLAN_PRO = "PRO"
 
 TF_5M = "5m"
 TF_15M = "15m"
-TF_1H = "1H"
-TF_4H = "4H"
-TF_1D = "1D"
+TF_1H = "1h"
+TF_4H = "4h"
+TF_1D = "1d"
 
 
 # ===== CALLBACK DATA =====
