@@ -2,7 +2,7 @@ import pandas as pd
 import plotly.graph_objects as go
 
 from services.analysis_service import analyze
-
+from services.indicator_service import calculate_indicators
 
 def draw_chart(
     candles,
@@ -11,11 +11,26 @@ def draw_chart(
     structure=None,
     bos=None,
     choch=None,
-    order_blocks=None,    
+    order_blocks=None,
     filename="chart.png",
 ):
 
+    print("=" * 50)
+    print(candles[0])
+    print("=" * 50)
+
     df = pd.DataFrame(candles)
+    # ==========================================
+    # EMA
+    # ==========================================
+
+    df["ema20"] = df["close"].ewm(span=20).mean()
+
+    df["ema50"] = df["close"].ewm(span=50).mean()
+
+    df["ema200"] = df["close"].ewm(span=200).mean()
+
+    print(df.columns)
 
     df["time"] = pd.to_datetime(df["time"], unit="ms")
 
@@ -44,7 +59,68 @@ def draw_chart(
         )
 
     )
+    fig.add_trace(
 
+    go.Scatter(
+
+        x=df["time"],
+
+        y=df["ema20"],
+
+        mode="lines",
+
+        name="EMA20",
+
+        line=dict(
+            color="cyan",
+            width=1
+        )
+
+        )
+
+    )
+    
+    fig.add_trace(
+
+    go.Scatter(
+
+        x=df["time"],
+
+        y=df["ema50"],
+
+        mode="lines",
+
+        name="EMA50",
+
+        line=dict(
+            color="yellow",
+            width=1
+        )
+
+        )
+  
+    )
+    fig.add_trace(
+
+    go.Scatter(
+
+        x=df["time"],
+
+        y=df["ema200"],
+
+        mode="lines",
+
+        name="EMA200",
+
+        line=dict(
+            color="magenta",
+            width=2
+        )
+
+        )
+
+    ) 
+     
     # ==================================================
     # Pivot
     # ==================================================
@@ -82,13 +158,9 @@ def draw_chart(
                 mode="markers",
 
                 marker=dict(
-
                     color="red",
-
                     size=10,
-
                     symbol="triangle-up"
-
                 ),
 
                 name="Pivot High"
@@ -108,13 +180,9 @@ def draw_chart(
                 mode="markers",
 
                 marker=dict(
-
                     color="green",
-
                     size=10,
-
                     symbol="triangle-down"
-
                 ),
 
                 name="Pivot Low"
@@ -163,7 +231,7 @@ def draw_chart(
         )
 
     # ==================================================
-    # Structure (HH HL LH LL)
+    # Structure
     # ==================================================
 
     if structure:
@@ -193,11 +261,13 @@ def draw_chart(
     # BOS
     # ==================================================
 
+    print("BOS:")
+    print(bos)
     if bos:
 
         for item in bos:
 
-            idx = item["break_index"]
+            idx = item["index"]
 
             if idx >= len(df):
                 continue
@@ -227,47 +297,49 @@ def draw_chart(
                 )
 
             )
-            
+
     # ==================================================
     # ORDER BLOCK
     # ==================================================
+    print("ORDER BLOCKS:")
+    print(order_blocks)   
 
     if order_blocks:
 
-       for ob in order_blocks:
+        for ob in order_blocks:
 
-        idx = ob["index"]
+            idx = ob["index"]
 
-        if idx >= len(df):
-            continue
+            if idx >= len(df):
+                continue
 
-        color = "rgba(0,255,0,0.25)"
+            color = "rgba(0,255,0,0.25)"
 
-        if ob["type"] == "BEARISH":
-            color = "rgba(255,0,0,0.25)"
+            if ob["type"] == "BEARISH":
+                color = "rgba(255,0,0,0.25)"
 
-        fig.add_shape(
+            fig.add_shape(
 
-            type="rect",
+                type="rect",
 
-            x0=df.iloc[idx]["time"],
+                x0=df.iloc[idx]["time"],
 
-            x1=df.iloc[min(idx + 8, len(df)-1)]["time"],
+                x1=df.iloc[min(idx + 8, len(df)-1)]["time"],
 
-            y0=ob["low"],
+                y0=ob["low"],
 
-            y1=ob["high"],
+                y1=ob["high"],
 
-            fillcolor=color,
+                fillcolor=color,
 
-            line=dict(width=0),
+                line=dict(width=0),
 
-            layer="below"
+                layer="below"
 
-        )        
+            )
 
     # ==================================================
-    # CHoCH
+    # CHOCH
     # ==================================================
 
     if choch:
@@ -330,14 +402,14 @@ def draw_chart(
 
 
 # ==================================================
-# Telegram uchun
+# Telegram
 # ==================================================
 
 def create_chart(symbol, timeframe):
 
     result = analyze(symbol, timeframe)
 
-    filename = draw_chart(
+    return draw_chart(
 
         candles=result["candles"],
 
@@ -348,11 +420,11 @@ def create_chart(symbol, timeframe):
         structure=result["structure"],
 
         bos=result["bos"],
-        
-        order_blocks=result["order_blocks"],  
+
+        choch=None,
+
+        order_blocks=result["order_blocks"],
 
         filename="chart.png"
 
     )
-
-    return filename

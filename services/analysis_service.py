@@ -9,6 +9,7 @@ from services.bos_service import detect_bos
 from services.order_block_service import detect_order_blocks
 from services.indicator_service import calculate_indicators
 from services.confidence_service import calculate_confidence
+from services.risk_manager import calculate_trade_levels
  
 
 
@@ -33,18 +34,31 @@ def analyze(symbol, timeframe):
     last_price = candles[-1]["close"]
     
     confidence = calculate_confidence(
+      
+    
+    
+        structure_info["trend"],
 
-    structure_info["trend"],
+        indicators,
 
-    indicators,
+        bos,
 
-    bos,
+        [],      # hozircha choch
 
-    [],      # hozircha choch
+        order_blocks
 
-    order_blocks
+    )
+    trade = calculate_trade_levels(
 
-)
+        structure_info["trend"],
+
+        last_price,
+
+        indicators,
+
+        order_blocks
+ 
+    )    
 
     return {
        
@@ -74,6 +88,9 @@ def analyze(symbol, timeframe):
         "last_price": last_price,
         
         "confidence": confidence,
+        
+        "trade": trade,
+        
 
         "stats": {
 

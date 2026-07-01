@@ -23,6 +23,14 @@ def get_klines(symbol, interval, limit=200):
 
     return response.json()
 def get_candles(symbol, interval, limit=200):
+    
+    from datetime import datetime
+
+    print(raw[0][0])
+    print(datetime.fromtimestamp(raw[0][0] / 1000))
+
+    print(raw[-1][0])
+    print(datetime.fromtimestamp(raw[-1][0] / 1000))
 
     raw = get_klines(symbol, interval, limit)
 
@@ -32,7 +40,7 @@ def get_candles(symbol, interval, limit=200):
 
         candles.append({
 
-            "open_time": c[0],
+            "time": c[0],
 
             "open": float(c[1]),
 
@@ -43,7 +51,7 @@ def get_candles(symbol, interval, limit=200):
             "close": float(c[4]),
 
             "volume": float(c[5]),
-
+                        
             "close_time": c[6]
 
         })
