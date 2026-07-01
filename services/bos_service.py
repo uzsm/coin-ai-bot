@@ -1,4 +1,18 @@
 def detect_bos(structure, candles):
+    """
+    Break Of Structure (BOS)
+
+    Qaytaradi:
+    [
+        {
+            "type": "BULLISH",
+            "level": 118523.5,
+            "pivot_index": 55,
+            "break_index": 72,
+            "price": 118523.5
+        }
+    ]
+    """
 
     bos = []
 
@@ -9,13 +23,17 @@ def detect_bos(structure, candles):
 
         label = point["label"]
 
-        # Faqat HH yoki LL
+        # Faqat HH va LL larni tekshiramiz
         if label not in ("HH", "LL"):
             continue
 
         level = point["price"]
+        pivot_index = point["index"]
 
-        for candle in candles[point["index"] + 1:]:
+        # Pivotdan keyingi shamlarni tekshirish
+        for i in range(pivot_index + 1, len(candles)):
+
+            candle = candles[i]
 
             # Bullish BOS
             if label == "HH":
@@ -26,11 +44,14 @@ def detect_bos(structure, candles):
 
                         "type": "BULLISH",
 
-                        "index": point["index"],
+                        "level": level,
 
                         "price": level,
 
-                        
+                        "pivot_index": pivot_index,
+
+                        "break_index": i
+
                     })
 
                     break
@@ -44,11 +65,13 @@ def detect_bos(structure, candles):
 
                         "type": "BEARISH",
 
-                        "index": point["index"],
+                        "level": level,
 
                         "price": level,
 
-                       
+                        "pivot_index": pivot_index,
+
+                        "break_index": i
 
                     })
 

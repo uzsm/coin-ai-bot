@@ -6,6 +6,7 @@ from services.structure_service import (
     analyze_structure
 )
 from services.bos_service import detect_bos
+from services.order_block_service import detect_order_blocks
 
 
 def analyze(symbol, timeframe):
@@ -21,6 +22,8 @@ def analyze(symbol, timeframe):
     structure_info = analyze_structure(structure)
 
     bos = detect_bos(structure, candles)
+    
+    order_blocks = detect_order_blocks(candles, bos)
     
     last_price = candles[-1]["close"]
 
@@ -46,6 +49,8 @@ def analyze(symbol, timeframe):
         "bos": bos,
         
         "last_price": last_price,
+        
+        "order_blocks": order_blocks,
 
         "stats": {
 
@@ -55,7 +60,9 @@ def analyze(symbol, timeframe):
 
             "structure_count": len(structure),
 
-            "bos_count": len(bos)
+            "bos_count": len(bos),
+            
+            "order_block_count": len(order_blocks)
 
         }
 

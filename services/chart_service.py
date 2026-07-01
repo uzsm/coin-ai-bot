@@ -1,6 +1,8 @@
 import pandas as pd
 import plotly.graph_objects as go
 
+from services.analysis_service import analyze
+
 
 def draw_chart(
     candles,
@@ -9,21 +11,20 @@ def draw_chart(
     structure=None,
     bos=None,
     choch=None,
+    order_blocks=None,    
     filename="chart.png",
 ):
 
-    # -----------------------------
-    # Candle DataFrame
-    # -----------------------------
     df = pd.DataFrame(candles)
 
     df["time"] = pd.to_datetime(df["time"], unit="ms")
 
     fig = go.Figure()
 
-    # -----------------------------
+    # ==================================================
     # Candlestick
-    # -----------------------------
+    # ==================================================
+
     fig.add_trace(
 
         go.Candlestick(
@@ -39,12 +40,15 @@ def draw_chart(
             close=df["close"],
 
             name="Candles"
+
         )
+
     )
 
-    # -----------------------------
-    # Pivotlar
-    # -----------------------------
+    # ==================================================
+    # Pivot
+    # ==================================================
+
     if pivots:
 
         high_x = []
@@ -90,6 +94,7 @@ def draw_chart(
                 name="Pivot High"
 
             )
+
         )
 
         fig.add_trace(
@@ -115,11 +120,13 @@ def draw_chart(
                 name="Pivot Low"
 
             )
+
         )
 
-    # -----------------------------
-    # Swinglar
-    # -----------------------------
+    # ==================================================
+    # Swings
+    # ==================================================
+
     if swings:
 
         sx = []
@@ -140,18 +147,25 @@ def draw_chart(
 
                 mode="lines+markers",
 
-                line=dict(color="orange", width=2),
+                line=dict(
+                    color="orange",
+                    width=2
+                ),
 
-                marker=dict(size=6),
+                marker=dict(
+                    size=6
+                ),
 
                 name="Swings"
 
             )
+
         )
 
-    # -----------------------------
-    # Structure Label
-    # -----------------------------
+    # ==================================================
+    # Structure (HH HL LH LL)
+    # ==================================================
+
     if structure:
 
         for item in structure:
@@ -166,53 +180,179 @@ def draw_chart(
 
                 showarrow=True,
 
-                arrowhead=1
+                arrowhead=2,
+
+                font=dict(
+                    size=11,
+                    color="white"
+                )
 
             )
 
-    # -----------------------------
+    # ==================================================
+    # BOS
+    # ==================================================
+
+    if bos:
+
+        for item in bos:
+
+            idx = item["break_index"]
+
+            if idx >= len(df):
+                continue
+
+            color = "blue"
+
+            if item["type"] == "BEARISH":
+                color = "purple"
+
+            fig.add_annotation(
+
+                x=df.iloc[idx]["time"],
+
+                y=item["price"],
+
+                text="BOS",
+
+                showarrow=True,
+
+                arrowhead=2,
+
+                arrowcolor=color,
+
+                font=dict(
+                    color=color,
+                    size=12
+                )
+
+            )
+            
+    # ==================================================
+    # ORDER BLOCK
+    # ==================================================
+
+    if order_blocks:
+
+       for ob in order_blocks:
+
+        idx = ob["index"]
+
+        if idx >= len(df):
+            continue
+
+        color = "rgba(0,255,0,0.25)"
+
+        if ob["type"] == "BEARISH":
+            color = "rgba(255,0,0,0.25)"
+
+        fig.add_shape(
+
+            type="rect",
+
+            x0=df.iloc[idx]["time"],
+
+            x1=df.iloc[min(idx + 8, len(df)-1)]["time"],
+
+            y0=ob["low"],
+
+            y1=ob["high"],
+
+            fillcolor=color,
+
+            line=dict(width=0),
+
+            layer="below"
+
+        )        
+
+    # ==================================================
+    # CHoCH
+    # ==================================================
+
+    if choch:
+
+        for item in choch:
+
+            idx = item["index"]
+
+            if idx >= len(df):
+                continue
+
+            fig.add_annotation(
+
+                x=df.iloc[idx]["time"],
+
+                y=item["price"],
+
+                text="CHOCH",
+
+                showarrow=True,
+
+                arrowhead=2,
+
+                arrowcolor="yellow",
+
+                font=dict(
+                    color="yellow",
+                    size=12
+                )
+
+            )
+
+    # ==================================================
     # Layout
-    # -----------------------------
+    # ==================================================
+
     fig.update_layout(
 
         title="Coin AI Analysis",
+
+        template="plotly_dark",
 
         xaxis_title="Time",
 
         yaxis_title="Price",
 
-        template="plotly_dark",
-
         xaxis_rangeslider_visible=False,
 
         legend=dict(
-
             orientation="h"
+        ),
 
-        )
+        height=900
 
     )
 
-    # -----------------------------
-    # Save PNG
-    # -----------------------------
     fig.write_image(filename)
 
     return filename
-from services.analysis_service import analyze
 
+
+# ==================================================
+# Telegram uchun
+# ==================================================
 
 def create_chart(symbol, timeframe):
 
     result = analyze(symbol, timeframe)
 
     filename = draw_chart(
+
         candles=result["candles"],
+
         pivots=result["pivots"],
+
         swings=result["swings"],
+
         structure=result["structure"],
+
         bos=result["bos"],
+        
+        order_blocks=result["order_blocks"],  
+
         filename="chart.png"
+
     )
 
     return filename
