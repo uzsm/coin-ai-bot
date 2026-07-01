@@ -199,3 +199,20 @@ def draw_chart(
     fig.write_image(filename)
 
     return filename
+from services.analysis_service import analyze
+
+
+def create_chart(symbol, timeframe):
+
+    result = analyze(symbol, timeframe)
+
+    filename = draw_chart(
+        candles=result["candles"],
+        pivots=result["pivots"],
+        swings=result["swings"],
+        structure=result["structure"],
+        bos=result["bos"],
+        filename="chart.png"
+    )
+
+    return filename
